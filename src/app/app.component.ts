@@ -18,7 +18,7 @@ export class AppComponent {
     this.docAddress.valueChanges.subscribe(
       val => {
         if (!this.isHexValue(val)) {
-          this.docAddress.setErrors({message: 'Invalid Dac address. Example: 0x213lkjkfsadf'});
+          this.docAddress.setErrors({message: 'Invalid Dac address. Example: 0x12345abcd'});
         }
       }
     );
@@ -26,7 +26,7 @@ export class AppComponent {
     this.verifierAddress.valueChanges.subscribe(
       val => {
         if (!this.isHexValue(val)) {
-          this.verifierAddress.setErrors({message: 'Invalid Verifier address. Example: 0x213lkjkfsadf'});
+          this.verifierAddress.setErrors({message: 'Invalid Verifier address. Example: 0x12345abcd'});
         }
       }
     );
