@@ -8,13 +8,23 @@ import * as web3 from 'web3';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  registryAddress: FormControl = new FormControl();
   docAddress: FormControl = new FormControl();
   verifierAddress: FormControl = new FormControl();
+  signerAddress: FormControl = new FormControl();
   documentProof: string;
   generatedString: string;
   canDisplay: boolean;
 
   constructor() {
+    this.registryAddress.valueChanges.subscribe(
+      val => {
+        if (!this.isHexValue(val)) {
+          this.registryAddress.setErrors({message: 'Invalid Registry address. Example: 0x12345abcd'});
+        }
+      }
+    );
+
     this.docAddress.valueChanges.subscribe(
       val => {
         if (!this.isHexValue(val)) {
@@ -27,6 +37,14 @@ export class AppComponent {
       val => {
         if (!this.isHexValue(val)) {
           this.verifierAddress.setErrors({message: 'Invalid Verifier address. Example: 0x12345abcd'});
+        }
+      }
+    );
+
+    this.signerAddress.valueChanges.subscribe(
+      val => {
+        if (!this.isHexValue(val)) {
+          this.signerAddress.setErrors({message: 'Invalid Signer address. Example: 0x12345abcd'});
         }
       }
     );

@@ -6,6 +6,14 @@
     <div class="col">
       <div>
         <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Registry address</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" [formControl]="registryAddress" placeholder="Enter Registry address">
+            <div class="invalid-feedback" style="display: block;" *ngIf="!registryAddress.valid">{{ registryAddress.errors.message | json }}</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <label class="col-sm-3 col-form-label">Doc address</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" [formControl]="docAddress" placeholder="Enter Doc address">
@@ -22,6 +30,14 @@
         </div>
 
         <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Signer address</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" [formControl]="signerAddress" placeholder="Enter Signer address">
+              <div class="invalid-feedback" style="display: block;" *ngIf="!signerAddress.valid">{{ signerAddress.errors.message | json }}</div>
+            </div>
+          </div>
+
+        <div class="form-group row">
           <label class="col-sm-3 col-form-label">Document Proof</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" [(ngModel)]="documentProof" placeholder="Enter Document proof">
@@ -29,13 +45,14 @@
         </div>
         <div class="form-group row">
           <div class="col-sm-9 offset-sm-3">
-            <button class="btn btn-primary" (click)="generateSig()" [disabled]="!docAddress.valid || !verifierAddress.valid || !documentProof">Generate Sig</button>
+            <button class="btn btn-primary" (click)="generateSig()" 
+                  [disabled]="!registryAddress.valid || !docAddress.valid || !verifierAddress.valid || !signerAddress.valid || !documentProof">Generate Sig</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div *ngIf="docAddress.valid && verifierAddress.valid && documentProof && generatedString">
+  <div *ngIf="registryAddress.valid && docAddress.valid && verifierAddress.valid && signerAddress.valid && documentProof && generatedString">
     <div class="row" style="padding-top: 25px;">
       <div class="col-sm-9 offset-sm-3">
         <textarea id="generatedString" class="form-control" readonly style="resize: none;" rows="4" [(ngModel)]="generatedString"></textarea>
