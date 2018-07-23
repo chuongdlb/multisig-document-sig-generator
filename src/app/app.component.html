@@ -54,10 +54,10 @@
       </div>
     </div>
   </div>
-  <div *ngIf="docAddress.valid && verifierAddress.valid && signerAddress.valid">
+  <div *ngIf="docAddress.value && verifierAddress.value && signerAddress.value">
     <div class="row" style="padding-top: 25px;">
       <div class="col-sm-9 offset-sm-3">
-        <textarea id="generatedString" class="form-control" readonly style="resize: none;"  [(ngModel)]="generatedString"></textarea>
+        <textarea id="generatedString" class="form-control" readonly style="resize: none;" [formControl]="generatedString"></textarea>
       </div>
     </div>
     <div class="row" style="padding-top: 15px;">

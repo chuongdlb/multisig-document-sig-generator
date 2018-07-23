@@ -46,7 +46,7 @@ export class AppComponent {
   verifierAddress: FormControl = new FormControl();
   signerAddress: FormControl = new FormControl();
   documentProof: string;
-  generatedString: string;
+  generatedString: FormControl = new FormControl();
   canDisplay: boolean;
   account: any;
   accounts: any;
@@ -185,10 +185,10 @@ export class AppComponent {
 
    var signer = this.signerAddress.value.toString().toLowerCase();
    this.web3.eth.sign(signer, messageHash, (err, val) => {
-     console.log(val.toString());
-      this.generatedString = "0x25d4c7da4372208f621499f090d5edef30cb91918ef3bfcc1dd1bb6158996a1a34f33bc44fc235a870de58965a3248d3057128fc8c477b50f0cce76f0cd3271400";
+     // console.log(val.toString());
+      this.generatedString.setValue(val);
 
-      alert('Your signature: '+ this.generatedString);
+      // alert('Your signature: '+ this.generatedString);
    });
 
   }
