@@ -6,6 +6,7 @@ import { FormControl } from '@angular/forms';
 // import {UtilModule} from './util/util.module';
 import * as contract from 'truffle-contract';
 const Web3 = require('web3');
+const abi = require('ethereumjs-abi');
 
 declare var window: any;
 
@@ -76,20 +77,18 @@ export class AppComponent {
         if (!this.isHexValue(val)) {
           this.docAddress.setErrors({message: 'Invalid Dac address. Example: 0x12345abcd'});
         }
-        console.log(this.documentABI);
-        var contractAbi = this.web3.eth.contract(this.documentABI.abi);
-        this.doc = contractAbi.at(this.docAddress.value);
+        // var contractAbi = this.web3.eth.contract(this.documentABI.abi);
+        this.doc = new this.web3.eth.Contract(this.documentABI,this.docAddress.value);
         // this.doc.setProvider(this.web3.currentProvider);
-        this.doc.verifier((err, val)=>  {
-        console.log(err);
-          this.verifierAddress.setValue( val);
+        console.log(this.doc);
+        this.doc.methods.verifier().call().then((result) => {
+          this.verifierAddress.setValue(result);
           // this.accounts = web3.eth.accounts;
           // this.signerAddress.setValue(this.accounts);
         });
 
-        this.doc.getProofHash((err, val)=>  {
-          console.log(val);
-          this.documentProof = val;
+        this.doc.methods.getProofHash().call().then((result) => {
+          this.documentProof = result;
         });
       }
     );
@@ -107,9 +106,8 @@ export class AppComponent {
         if (!this.isHexValue(val)) {
           this.signerAddress.setErrors({message: 'Invalid Signer address. Example: 0x12345abcd'});
         }
-        this.doc = this.documentABI.at(this.docAddress.value);
-        this.doc.signerProperties(this.signerAddress.value, (err,val) => {
-          console.log(val);
+        this.doc.methods.signerProperties(this.signerAddress.value).call().then((result) => {
+          console.log(result);
         })
       }
     );
@@ -176,27 +174,25 @@ export class AppComponent {
   };
 
   generateSig() {
-    // this.generatedString = this.docAddress.value + this.verifierAddress.value + this.documentProof;
-    // this.generatedString = genSig(this.docAddress.value, this.signerAddress.value, this.verifierAddr.value, this.documentProof);
-   const message = this.docAddress.value.substr(2) + this.verifierAddress.value.substr(2) + this.documentProof.substr(2);
-        // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
-   const messageHash = this.web3.sha3(message, {encoding:'hex'});
-   console.log(messageHash);
+
+  const hash = "0x" + abi.soliditySHA3(
+    ["address", "address", "bytes32"],
+    [this.docAddress.value, this.verifierAddress.value, this.documentProof]
+  ).toString("hex");
+
+  console.log("ABI Sha3: "+hash);
 
    var signer = this.signerAddress.value.toString().toLowerCase();
-   this.web3.eth.sign(signer, messageHash, (err, val) => {
+   this.web3.eth.personal.sign(hash,signer, (err, val) => {
      // console.log(val.toString());
+     console.log(val);
       this.generatedString.setValue(val);
-
-      // alert('Your signature: '+ this.generatedString);
    });
 
   }
   initAbi() {
-    // console.log(MultiSigDocumentRegistryArtifacts.abi);
-
-    this.multiSigDocumentRegistryAbi = this.web3.eth.contract(MultiSigDocumentRegistryArtifacts.abi);
-    this.documentABI = this.web3.eth.contract(MultiSigDocumentWithStorageArtifacts.abi);
+    this.multiSigDocumentRegistryAbi = MultiSigDocumentRegistryArtifacts.abi;
+    this.documentABI = MultiSigDocumentWithStorageArtifacts.abi;
   }
 
   sign() {
@@ -205,12 +201,20 @@ export class AppComponent {
     // var doc = this.documentABI.at(this.docAddress.value);
     console.log(this.generatedString);
 
-    this.doc.signDocument(this.generatedString.value, {from:signer, gas: 200000},(err, val)=>{
-        if(err) {
-          console.log(err);
-        }
-        console.log(val);
-    });
+    this.doc.methods
+      .signDocument(this.generatedString.value)
+      .send({ from:signer, gas: 200000})
+      .on('transactionHash', function(hash){
+          alert("TxId: "+hash);
+
+      })
+      .on('receipt', function(receipt){
+          console.log(receipt);
+      })
+      .on('confirmation', function(confirmationNumber, receipt){
+          alert("Transaction confirmed!");
+      })
+      .on('error', console.error);
   }
 
   isHexValue(value: string): boolean {
