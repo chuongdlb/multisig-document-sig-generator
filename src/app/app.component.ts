@@ -58,7 +58,7 @@ export class AppComponent {
   constructor() {
 
     // window.addEventListener('load', (event) => {
-      // this.checkAndInstantiateWeb3();
+      this.checkAndInstantiateWeb3();
     // });
     // console.log('Constructor: ' + web3Service);
     // console.log(web3);
@@ -123,8 +123,8 @@ export class AppComponent {
   }
   @HostListener('window:load')
   windowLoaded() {
-    this.checkAndInstantiateWeb3();
-    this.onReady();
+    // this.checkAndInstantiateWeb3();
+    // this.onReady();
     this.initAbi();
 
 }
@@ -205,8 +205,10 @@ export class AppComponent {
     // var doc = this.documentABI.at(this.docAddress.value);
     console.log(this.generatedString);
 
-    this.doc.signDocument(this.generatedString, {from:signer},(err, val)=>{
-        alert(val);
+    this.doc.signDocument(this.generatedString.value, {from:signer, gas: 200000},(err, val)=>{
+        if(err) {
+          console.log(err);
+        }
         console.log(val);
     });
   }
