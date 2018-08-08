@@ -14,10 +14,20 @@
         </div>
 
         <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Issuer address</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" [formControl]="issuerAddress" placeholder="Enter Issuer address">
+            <div class="invalid-feedback" style="display: block;" *ngIf="!issuerAddress.valid">{{ issuerAddress.errors.message | json }}</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <label class="col-sm-3 col-form-label">Doc address</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" [formControl]="docAddress" placeholder="Enter Doc address">
-            <div class="invalid-feedback" style="display: block;" *ngIf="!docAddress.valid">{{ docAddress.errors.message | json }}</div>
+            <select class="form-control"  [formControl]="selectDoc" *ngFor="let x of docList">
+                <option  [value]="x" [selected]="selectDoc == x">{{x}}</option>
+            </select>
+            <!-- <div class="invalid-feedback" style="display: block;" *ngIf="!docAddress.valid">{{ docAddress.errors.message | json }}</div> -->
           </div>
         </div>
 
@@ -48,13 +58,13 @@
         <div class="form-group row">
           <div class="col-sm-9 offset-sm-3">
             <button class="btn btn-primary" (click)="generateSig()"
-                  [disabled]="!registryAddress.valid || !docAddress.valid || !verifierAddress.valid || !signerAddress.valid || !documentProof">Generate Sig</button>
+                  [disabled]="!registryAddress.valid || !verifierAddress.valid || !signerAddress.valid || !documentProof">Generate Sig</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div *ngIf="docAddress.value && verifierAddress.value && signerAddress.value">
+  <div *ngIf="selectDoc.value && verifierAddress.value && signerAddress.value">
     <div class="row" style="padding-top: 25px;">
       <div class="col-sm-9 offset-sm-3">
         <textarea id="generatedString" class="form-control" readonly style="resize: none;" [formControl]="generatedString"></textarea>

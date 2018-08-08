@@ -22,9 +22,9 @@ const MultiSigDocumentWithStorageArtifacts = require('./contracts/MultiSigDocume
 // const Web3 = require('web3');
 // const contract = require('truffle-contract');
 
-//let multiSigDocumentRegistryAbi = MultiSigDocumentRegistry.abi;
+//let registryABI = MultiSigDocumentRegistry.abi;
 //
-// console.log(multiSigDocumentRegistryAbi);
+// console.log(registryABI);
 // export const genSig = (contractAddr, signer, verifierAddr, dataHex = '') => {
 //
 //     const message = contractAddr.substr(2) + verifierAddr.substr(2) + dataHex;
@@ -45,6 +45,7 @@ export class AppComponent {
   registryAddress: FormControl = new FormControl();
   docAddress: FormControl = new FormControl();
   verifierAddress: FormControl = new FormControl();
+  issuerAddress: FormControl = new FormControl();
   signerAddress: FormControl = new FormControl();
   documentProof: string;
   generatedString: FormControl = new FormControl();
@@ -52,9 +53,13 @@ export class AppComponent {
   account: any;
   accounts: any;
   web3: any;
-  multiSigDocumentRegistryAbi: any;
+  registryABI: any;
   documentABI: any;
+  docCount: number;
+  selectDoc: FormControl = new FormControl();;
+  docList = Array<string>();
   doc: any;
+  registry: any;
 
   constructor() {
 
@@ -68,17 +73,39 @@ export class AppComponent {
         if (!this.isHexValue(val)) {
           this.registryAddress.setErrors({message: 'Invalid Registry address. Example: 0x12345abcd'});
         }
+        this.registry = new this.web3.eth.Contract(this.registryABI,this.registryAddress.value);
+        // this.doc.setProvider(this.web3.currentProvider);
+        // console.log(this.registry);
 
       }
     );
-
-    this.docAddress.valueChanges.subscribe(
+    this.issuerAddress.valueChanges.subscribe(
       val => {
         if (!this.isHexValue(val)) {
-          this.docAddress.setErrors({message: 'Invalid Dac address. Example: 0x12345abcd'});
+          this.issuerAddress.setErrors({message: 'Invalid Issuer address. Example: 0x12345abcd'});
+        }
+        this.registry.methods.getDocumentCount(this.issuerAddress.value).call().then((result) => {
+            console.log(result);
+            this.docCount = result;
+            for(var i = 0; i < this.docCount; i++)
+            {
+              this.registry.methods.docVault(this.issuerAddress.value, i).call().then((docAddr)=>{
+                  this.docList.push(docAddr);
+                  console.log(this.docList);
+              });
+            }
+        });
+
+
+      }
+    );
+    this.selectDoc.valueChanges.subscribe(
+      val => {
+        if (!this.isHexValue(val)) {
+          this.selectDoc.setErrors({message: 'Invalid Dac address. Example: 0x12345abcd'});
         }
         // var contractAbi = this.web3.eth.contract(this.documentABI.abi);
-        this.doc = new this.web3.eth.Contract(this.documentABI,this.docAddress.value);
+        this.doc = new this.web3.eth.Contract(this.documentABI,this.selectDoc.value);
         // this.doc.setProvider(this.web3.currentProvider);
         console.log(this.doc);
         this.doc.methods.verifier().call().then((result) => {
@@ -191,7 +218,7 @@ export class AppComponent {
 
   }
   initAbi() {
-    this.multiSigDocumentRegistryAbi = MultiSigDocumentRegistryArtifacts.abi;
+    this.registryABI = MultiSigDocumentRegistryArtifacts.abi;
     this.documentABI = MultiSigDocumentWithStorageArtifacts.abi;
   }
 
