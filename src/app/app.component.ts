@@ -204,7 +204,7 @@ export class AppComponent {
 
   const hash = "0x" + abi.soliditySHA3(
     ["address", "address", "bytes32"],
-    [this.docAddress.value, this.verifierAddress.value, this.documentProof]
+    [this.selectDoc.value, this.verifierAddress.value, this.documentProof]
   ).toString("hex");
 
   console.log("ABI Sha3: "+hash);
